@@ -15,7 +15,6 @@ export class ValidateInputPipe extends ValidationPipe {
       if (e instanceof BadRequestException) {
         throw new UnprocessableEntityException(e.message);
       }
-      console.log(e.message);
     }
   }
 }
