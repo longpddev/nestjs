@@ -8,6 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CardModule } from './modules/card/card.module';
 import { ImageModule } from './modules/image/image.module';
 import { join } from 'path';
+import { CardGroupModule } from './modules/card-group/card-group.module';
+import { CardStepModule } from './modules/card-step/card-step.module';
 @Module({
   imports: [
     DatabaseModule,
@@ -16,6 +18,8 @@ import { join } from 'path';
     AuthModule,
     CardModule,
     ImageModule,
+    CardGroupModule,
+    CardStepModule,
   ],
   controllers: [AppController],
   providers: [AppService],
