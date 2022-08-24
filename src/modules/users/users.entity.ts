@@ -24,7 +24,7 @@ export class User extends Model<User> {
   @Column({
     type: DataType.STRING,
     values: ['male', 'female'],
-    allowNull: false,
+    allowNull: true,
   })
   gender: string;
 }

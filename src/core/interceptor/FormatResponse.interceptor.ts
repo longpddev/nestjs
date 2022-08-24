@@ -5,7 +5,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 
 export interface Response<T> {
   statusCode: number;
@@ -25,7 +25,7 @@ export class FormatResponse<T> implements NestInterceptor<T, Response<T>> {
 
         return {
           statusCode: response.statusCode,
-          message: data.message || '',
+          message: data?.message || '',
           data: data,
         };
       }),

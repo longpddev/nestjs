@@ -18,6 +18,9 @@ export class UsersService {
   }
 
   async findOneById(id: number): Promise<User> {
-    return await this.userRepository.findOne<User>({ where: { id } });
+    return await this.userRepository.findOne<User>({
+      where: { id },
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+    });
   }
 }

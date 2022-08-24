@@ -6,12 +6,12 @@ import { ImageController } from './image.controller';
 import { ImageService } from './image.service';
 import { Image } from './image.entity';
 import { MulterModule } from '@nestjs/platform-express';
-import storage from 'src/core/store/imageStore';
+import createStore from 'src/core/store/imageStore';
 
 @Module({
   imports: [
     MulterModule.register({
-      storage: storage,
+      storage: createStore('public/upload/image'),
     }),
   ],
   controllers: [ImageController],
@@ -24,5 +24,6 @@ import storage from 'src/core/store/imageStore';
     Image,
     ImageFile,
   ],
+  exports: [ImageService],
 })
 export class ImageModule {}

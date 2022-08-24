@@ -9,11 +9,18 @@ import {
 import { Inject, Injectable } from '@nestjs/common';
 import { ParentModelService } from 'src/core/interfaces/ParentModelService';
 import { Op } from 'sequelize';
+import { CardStep } from '../card-step/card-step.entity';
 
 @Injectable()
 export class CardService
   implements ModelService<Card, CardDto>, ParentModelService<Card>
 {
+  private includeModel() {
+    return {
+      model: CardStep,
+    };
+  }
+
   constructor(
     @Inject(CARD_REPOSITORY)
     private readonly cardRepository: typeof Card,
@@ -23,12 +30,14 @@ export class CardService
   async getAll(userId: number): Promise<Card[]> {
     return await this.cardRepository.findAll({
       where: { userId },
+      include: [this.includeModel()],
     });
   }
 
   async getById(id: number, userId: number): Promise<Card> {
     return await this.cardRepository.findOne({
       where: { id, userId },
+      include: [this.includeModel()],
     });
   }
 
@@ -65,6 +74,7 @@ export class CardService
   async getAllByParent(id: number): Promise<Card[]> {
     return await this.cardRepository.findAll({
       where: { cardGroupId: id },
+      include: [this.includeModel()],
     });
   }
 

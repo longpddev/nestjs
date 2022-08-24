@@ -5,15 +5,23 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
+  DefaultScope,
 } from 'sequelize-typescript';
+import { CARD_STEP_TYPE } from 'src/core/constants';
 import { Card } from '../card/card.entity';
 import { Image } from '../image/image.entity';
 
+// alway load association model image
+@DefaultScope(() => ({
+  include: {
+    model: Image,
+  },
+}))
 @Table
 export class CardStep extends Model<CardStep> {
   @ForeignKey(() => Image)
   @Column({
-    type: DataType.NUMBER,
+    type: DataType.INTEGER,
     allowNull: true,
   })
   imageId: number;
@@ -35,7 +43,7 @@ export class CardStep extends Model<CardStep> {
 
   @Column({
     type: DataType.STRING,
-    values: ['question', 'answer', 'explain'],
+    values: Object.values(CARD_STEP_TYPE),
     allowNull: false,
   })
   type: string;

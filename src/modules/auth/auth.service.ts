@@ -51,4 +51,8 @@ export class AuthService {
     const hash = await bcrypt.hash(password, 10);
     return hash;
   }
+
+  public async getById(id: number) {
+    return await this.userService.findOneById(id);
+  }
 }

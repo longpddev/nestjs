@@ -19,13 +19,13 @@ export class CardGroup extends Model<CardGroup> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   description: string;
 
   @ForeignKey(() => User)
   @Column({
-    type: DataType.NUMBER,
+    type: DataType.INTEGER,
     allowNull: false,
   })
   userId: number;

@@ -1,14 +1,12 @@
-import { IsDate, IsNotEmpty, IsNumber } from 'class-validator';
+import { CardStepDto } from './../../card-step/dto/card-step.dto';
+import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CardDto {
   @IsNotEmpty()
-  @IsNumber()
   cardGroupId: number;
 
-  @IsDate()
+  @IsString()
   timeLastLearn: string;
 
-  @IsNotEmpty()
-  @IsNumber()
   times: number;
 }

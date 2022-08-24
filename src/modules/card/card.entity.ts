@@ -31,8 +31,8 @@ export class Card extends Model<Card> {
   })
   cardGroupId: number;
 
-  @HasMany(() => CardStep)
-  cardStep: Array<CardStep>;
+  @HasMany(() => CardStep, 'cardId')
+  cardStep: CardStep[];
 
   @ForeignKey(() => User)
   @Column({

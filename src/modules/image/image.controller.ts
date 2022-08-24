@@ -38,7 +38,7 @@ export class ImageController {
   ) {
     const { filename, path } = file;
     const { width, height } = body;
-    const result = await this.imageService.save({
+    const result = await this.imageService.create({
       name: filename,
       path,
       width,

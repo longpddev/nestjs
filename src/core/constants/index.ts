@@ -8,3 +8,8 @@ export const IMAGE_REPOSITORY = 'IMAGE_REPOSITORY';
 export const CARD_REPOSITORY = 'CARD_REPOSITORY';
 export const CARD_GROUP_REPOSITORY = 'CARD_GROUP_REPOSITORY';
 export const CARD_STEP_REPOSITORY = 'CARD_STEP_REPOSITORY';
+export const CARD_STEP_TYPE = {
+  question: 'question',
+  answer: 'answer',
+  explain: 'explain',
+};

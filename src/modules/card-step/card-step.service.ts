@@ -21,7 +21,9 @@ export class CardStepService
     return await this.cardStepRepository.findAll();
   }
   async getById(id: number) {
-    return await this.cardStepRepository.findOne({ where: { id } });
+    return await this.cardStepRepository.findOne({
+      where: { id },
+    });
   }
 
   async create(data: CardStepDto) {
