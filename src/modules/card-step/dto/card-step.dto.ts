@@ -1,8 +1,7 @@
 import { CARD_STEP_TYPE } from './../../../core/constants/index';
-import { IsNotEmpty, IsNumber, Matches } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Matches } from 'class-validator';
 
 export class CardStepDto {
-  @IsNotEmpty()
   imageId: number;
   @IsNotEmpty()
   content: string;
@@ -10,6 +9,9 @@ export class CardStepDto {
   @IsNotEmpty()
   @Matches(`^(${Object.values(CARD_STEP_TYPE).join('|')})$`)
   type: string;
+
+  @IsNotEmpty()
+  cardGroupId: number;
 
   cardId: number;
 }

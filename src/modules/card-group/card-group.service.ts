@@ -21,7 +21,9 @@ export class CardGroupService implements ModelService<CardGroup, CardGroupDto> {
   }
 
   async getAll(userId: number) {
-    return await this.cardGroupRepository.findAll({ where: { userId } });
+    return await this.cardGroupRepository.findAndCountAll({
+      where: { userId },
+    });
   }
 
   async create(data: CardGroupDto, userId: number) {
@@ -48,7 +50,7 @@ export class CardGroupService implements ModelService<CardGroup, CardGroupDto> {
       throw new NotFoundException("This card group doesn't exits");
 
     const result = await this.cardGroupRepository.destroy({ where: { id } });
-
+    console.log({ result });
     if (result > 0) {
       const listCard = await this.cardService.deleteAllByParent(id, userId);
     }

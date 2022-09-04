@@ -17,8 +17,8 @@ export class CardStepService
     private readonly imageService: ImageService,
   ) {}
 
-  async getAll(): Promise<CardStep[]> {
-    return await this.cardStepRepository.findAll();
+  async getAll() {
+    return await this.cardStepRepository.findAndCountAll();
   }
   async getById(id: number) {
     return await this.cardStepRepository.findOne({
@@ -56,15 +56,17 @@ export class CardStepService
   }
 
   async getAllByParent(id: number) {
-    return await this.cardStepRepository.findAll({
+    return await this.cardStepRepository.findAndCountAll({
       where: { cardId: id },
     });
   }
 
   async deleteAllByParent(id: number): Promise<number> {
-    const list = await this.getAllByParent(id);
+    const { rows: list } = await this.getAllByParent(id);
     await Promise.all(
-      list.map((item) => this.imageService.delete(item.imageId)),
+      list
+        .filter((item) => Boolean(item.imageId))
+        .map((item) => this.imageService.delete(item.imageId)),
     );
 
     return await this.cardStepRepository.destroy({

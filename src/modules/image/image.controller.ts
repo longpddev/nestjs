@@ -9,6 +9,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -46,6 +47,34 @@ export class ImageController {
     });
     return {
       id: result.id,
+      filename,
+      path,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id')
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body,
+  ) {
+    const image = await this.imageService.getById(id);
+    if (!image) throw new NotFoundException("This Image doesn't exit");
+    const oldPath = image.path;
+    const { filename, path } = file;
+    const { width, height } = body;
+    await this.imageService.update(id, {
+      name: filename,
+      path,
+      width,
+      height,
+    });
+
+    this.imageFile.delete(oldPath);
+    return {
+      id,
       filename,
       path,
     };

@@ -11,7 +11,11 @@ async function bootstrap() {
     prefix: '/public/',
   });
   app.setGlobalPrefix('api/v1');
-  app.useGlobalPipes(new ValidateInputPipe());
+  app.useGlobalPipes(
+    new ValidateInputPipe({
+      transform: true,
+    }),
+  );
   app.useGlobalInterceptors(new FormatResponse());
 
   await app.listen(6969);

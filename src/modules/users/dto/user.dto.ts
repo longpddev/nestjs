@@ -1,4 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, MinLength } from 'class-validator';
+import { SettingsUser } from './settings.user.dto';
 
 enum Gender {
   MALE = 'male',
@@ -21,4 +22,6 @@ export class UserDto {
   //   message: 'gender must be either male or female',
   // })
   // readonly gender: Gender;
+
+  readonly settings: typeof SettingsUser;
 }

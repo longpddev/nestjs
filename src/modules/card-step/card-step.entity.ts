@@ -47,4 +47,10 @@ export class CardStep extends Model<CardStep> {
     allowNull: false,
   })
   type: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  cardGroupId: number;
 }

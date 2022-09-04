@@ -1,3 +1,4 @@
+import { CardProcess } from './../../modules/card/card.process.entity';
 import { CardStep } from './../../modules/card-step/card-step.entity';
 import { Sequelize } from 'sequelize-typescript';
 import { CardGroup } from 'src/modules/card-group/card-group.entity';
@@ -26,7 +27,14 @@ export const databaseProviders = [
           config = databaseConfig.development;
       }
       const sequelize = new Sequelize(config);
-      sequelize.addModels([User, Image, CardGroup, Card, CardStep]);
+      sequelize.addModels([
+        User,
+        Image,
+        CardGroup,
+        Card,
+        CardStep,
+        CardProcess,
+      ]);
       await sequelize.sync();
       return sequelize;
     },

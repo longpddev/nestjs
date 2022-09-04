@@ -4,9 +4,4 @@ import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CardDto {
   @IsNotEmpty()
   cardGroupId: number;
-
-  @IsString()
-  timeLastLearn: string;
-
-  times: number;
 }

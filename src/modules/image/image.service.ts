@@ -16,8 +16,8 @@ export class ImageService implements ModelService<Image, ImageDto> {
     return await this.imageRepository.findOne({ where: { id } });
   }
 
-  async getAll(): Promise<Image[]> {
-    return await this.imageRepository.findAll();
+  async getAll() {
+    return await this.imageRepository.findAndCountAll();
   }
 
   async create(image: ImageDto) {

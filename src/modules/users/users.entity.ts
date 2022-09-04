@@ -1,5 +1,5 @@
+import { SettingsUser } from './dto/settings.user.dto';
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
-
 @Table
 export class User extends Model<User> {
   @Column({
@@ -27,4 +27,10 @@ export class User extends Model<User> {
     allowNull: true,
   })
   gender: string;
+
+  @Column({
+    type: DataType.JSON,
+    allowNull: false,
+  })
+  settings: SettingsUser;
 }

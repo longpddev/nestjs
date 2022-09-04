@@ -13,7 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { CardGroupDto } from './dto/card-group.dto';
 
-@Controller('card-group')
+@Controller('group-card')
 export class CardGroupController {
   constructor(private readonly cardGroupService: CardGroupService) {}
 
