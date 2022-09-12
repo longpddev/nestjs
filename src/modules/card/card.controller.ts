@@ -1,3 +1,4 @@
+import { CardGroupService } from './../card-group/card-group.service';
 import { CardProcessService } from './card.process.service';
 import { CARD_STEP_TYPE } from './../../core/constants/index';
 import { CardStepDto } from './../card-step/dto/card-step.dto';
@@ -28,6 +29,7 @@ export class CardController {
     private readonly cardService: CardService,
     private readonly cardStepService: CardStepService,
     private readonly cardProcessService: CardProcessService,
+    private readonly cardGroupService: CardGroupService,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
@@ -101,6 +103,13 @@ export class CardController {
         `field type in ${field} must be ${type}`,
       );
     };
+
+    const result = await this.cardGroupService.getById(
+      info.cardGroupId,
+      userId,
+    );
+
+    if (!result) throw new NotAcceptableException('group is not found');
 
     const card = await this.cardService.create(info, userId);
     if (!card) throw new NotFoundException("can't create card");
