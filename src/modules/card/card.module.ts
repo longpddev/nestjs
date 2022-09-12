@@ -1,3 +1,4 @@
+import { CardGroupModule } from './../card-group/card-group.module';
 import { CardProcess } from './card.process.entity';
 import { ImageModule } from './../image/image.module';
 import { CardStepModule } from './../card-step/card-step.module';
@@ -12,7 +13,7 @@ import { Card } from './card.entity';
 import { CardProcessService } from './card.process.service';
 
 @Module({
-  imports: [CardStepModule, ImageModule],
+  imports: [CardStepModule, ImageModule, CardGroupModule],
   providers: [
     CardService,
     CardProcessService,
