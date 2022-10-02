@@ -20,6 +20,7 @@ import { ParentModelService } from 'src/core/interfaces/ParentModelService';
 import { Op } from 'sequelize';
 import { CardStep } from '../card-step/card-step.entity';
 import { ImageService } from '../image/image.service';
+import { CardStepDto } from '../card-step/dto/card-step.dto';
 
 @Injectable()
 export class CardService
@@ -69,6 +70,85 @@ export class CardService
     );
 
     return numberOfAffectedRows;
+  }
+
+  async createCard(
+    userId: number,
+    info: CardDto,
+    cardQuestion: CardStepDto,
+    cardAnswer: CardStepDto,
+    cardExplain?: CardStepDto,
+  ) {
+    const createError = (field, type) => {
+      throw new NotAcceptableException(
+        `field type in ${field} must be ${type}`,
+      );
+    };
+
+    const card = await this.create(info, userId);
+    if (!card) throw new NotFoundException("can't create card");
+    cardQuestion.cardId = card.id;
+    cardAnswer.cardId = card.id;
+    cardExplain && (cardExplain.cardId = card.id);
+
+    if (cardQuestion.type !== CARD_STEP_TYPE.question)
+      createError('cardQuestion', CARD_STEP_TYPE.question);
+    if (cardAnswer.type !== CARD_STEP_TYPE.answer)
+      createError('cardAnswer', CARD_STEP_TYPE.answer);
+    if (cardExplain && cardExplain.type !== CARD_STEP_TYPE.explain)
+      createError('cardExplain', CARD_STEP_TYPE.explain);
+
+    try {
+      if (cardExplain) {
+        const [rowQuestion, rowAnswer, rowExplain] = await Promise.all([
+          this.cardStepService.create(cardQuestion),
+          this.cardStepService.create(cardAnswer),
+          this.cardStepService.create(cardExplain),
+        ]);
+
+        await Promise.all([
+          this.cardProcessService.create({
+            frontCardId: rowQuestion.id,
+            backCardId: rowAnswer.id,
+            times: 0,
+            timeLastLearn: new Date(),
+            timeNextLearn: new Date(),
+            cardMainId: card.id,
+            cardGroupId: info.cardGroupId,
+          }),
+          this.cardProcessService.create({
+            frontCardId: rowAnswer.id,
+            backCardId: rowExplain.id,
+            times: 0,
+            timeLastLearn: new Date(),
+            timeNextLearn: new Date(),
+            cardMainId: card.id,
+            cardGroupId: info.cardGroupId,
+          }),
+        ]);
+      } else {
+        const [rowQuestion, rowAnswer] = await Promise.all([
+          this.cardStepService.create(cardQuestion),
+          this.cardStepService.create(cardAnswer),
+        ]);
+
+        await Promise.all([
+          this.cardProcessService.create({
+            frontCardId: rowQuestion.id,
+            backCardId: rowAnswer.id,
+            times: 0,
+            timeLastLearn: new Date(),
+            timeNextLearn: new Date(),
+            cardMainId: card.id,
+            cardGroupId: info.cardGroupId,
+          }),
+        ]);
+      }
+    } catch (e) {
+      throw e;
+    }
+
+    return card;
   }
 
   async delete(id: number): Promise<number> {

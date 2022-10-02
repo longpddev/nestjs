@@ -98,12 +98,6 @@ export class CardController {
     @Request() req,
   ) {
     const userId = req.user.id;
-    const createError = (field, type) => {
-      throw new NotAcceptableException(
-        `field type in ${field} must be ${type}`,
-      );
-    };
-
     const result = await this.cardGroupService.getById(
       info.cardGroupId,
       userId,
@@ -111,49 +105,39 @@ export class CardController {
 
     if (!result) throw new NotAcceptableException('group is not found');
 
-    const card = await this.cardService.create(info, userId);
-    if (!card) throw new NotFoundException("can't create card");
-    cardQuestion.cardId = card.id;
-    cardAnswer.cardId = card.id;
-    cardExplain.cardId = card.id;
+    const card = this.cardService.createCard(
+      userId,
+      info,
+      cardQuestion,
+      cardAnswer,
+      cardExplain,
+    );
 
-    if (cardQuestion.type !== CARD_STEP_TYPE.question)
-      createError('cardQuestion', CARD_STEP_TYPE.question);
-    if (cardAnswer.type !== CARD_STEP_TYPE.answer)
-      createError('cardAnswer', CARD_STEP_TYPE.answer);
-    if (cardExplain.type !== CARD_STEP_TYPE.explain)
-      createError('cardExplain', CARD_STEP_TYPE.explain);
+    return card;
+  }
 
-    try {
-      const [rowQuestion, rowAnswer, rowExplain] = await Promise.all([
-        this.cardStepService.create(cardQuestion),
-        this.cardStepService.create(cardAnswer),
-        this.cardStepService.create(cardExplain),
-      ]);
+  @UseGuards(AuthGuard('jwt'))
+  @Post('noexplain')
+  async createNoexplain(
+    @Body('info') info: CardDto,
+    @Body('cardQuestion') cardQuestion: CardStepDto,
+    @Body('cardAnswer') cardAnswer: CardStepDto,
+    @Request() req,
+  ) {
+    const userId = req.user.id;
+    const result = await this.cardGroupService.getById(
+      info.cardGroupId,
+      userId,
+    );
 
-      await Promise.all([
-        this.cardProcessService.create({
-          frontCardId: rowQuestion.id,
-          backCardId: rowAnswer.id,
-          times: 0,
-          timeLastLearn: new Date(),
-          timeNextLearn: new Date(),
-          cardMainId: card.id,
-          cardGroupId: info.cardGroupId,
-        }),
-        this.cardProcessService.create({
-          frontCardId: rowAnswer.id,
-          backCardId: rowExplain.id,
-          times: 0,
-          timeLastLearn: new Date(),
-          timeNextLearn: new Date(),
-          cardMainId: card.id,
-          cardGroupId: info.cardGroupId,
-        }),
-      ]);
-    } catch (e) {
-      throw e;
-    }
+    if (!result) throw new NotAcceptableException('group is not found');
+
+    const card = this.cardService.createCard(
+      userId,
+      info,
+      cardQuestion,
+      cardAnswer,
+    );
 
     return card;
   }
