@@ -7,7 +7,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 export class FileTempController {
   constructor(private readonly fileTempService: FileTempService) {}
 
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @Post('get')
   async getFile(@Body() body: FileTempDto) {
     const result = await this.fileTempService.download(body.url);
