@@ -1,3 +1,4 @@
+import { QueryOptions } from 'src/core/interfaces/common';
 import { CardGroupService } from './../card-group/card-group.service';
 import { CardProcessService } from './card.process.service';
 import { CARD_STEP_TYPE } from './../../core/constants/index';
@@ -34,11 +35,26 @@ export class CardController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAll(@Request() req, @Query() query: { groupId?: number }) {
+  async getAll(
+    @Request() req,
+    @Query() query: { groupId?: string; pageIndex?: string; limit?: string },
+  ) {
     const userId = req.user.id;
+    let options: QueryOptions | undefined = undefined;
+
+    if (query.pageIndex && query.limit) {
+      options = {
+        pageIndex: parseInt(query.pageIndex),
+        limit: parseInt(query.limit),
+      };
+    }
     if (query.groupId)
-      return await this.cardService.getAllByParent(query.groupId);
-    return await this.cardService.getAll(userId);
+      return await this.cardService.getAllByParent(
+        parseInt(query.groupId),
+        userId,
+        options,
+      );
+    return await this.cardService.getAll(userId, options);
   }
 
   @UseGuards(AuthGuard('jwt'))

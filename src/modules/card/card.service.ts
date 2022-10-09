@@ -17,10 +17,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ParentModelService } from 'src/core/interfaces/ParentModelService';
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { CardStep } from '../card-step/card-step.entity';
 import { ImageService } from '../image/image.service';
 import { CardStepDto } from '../card-step/dto/card-step.dto';
+import { QueryOptions } from 'src/core/interfaces/common';
+import { ModelStatic } from 'sequelize-typescript';
 
 @Injectable()
 export class CardService
@@ -40,9 +42,19 @@ export class CardService
     private readonly cardProcessService: CardProcessService,
   ) {}
 
-  async getAll(userId: number): Promise<{ rows: Card[]; count: number }> {
+  async getAll(
+    userId: number,
+    options?: QueryOptions,
+  ): Promise<{ rows: Card[]; count: number }> {
+    const query: { limit?: number; offset?: number } = {};
+
+    if (options) {
+      query.limit = options.limit;
+      query.offset = options.pageIndex;
+    }
     return await this.cardRepository.findAndCountAll({
       where: { userId },
+      ...query,
       include: [this.includeModel()],
     });
   }
@@ -161,18 +173,42 @@ export class CardService
     return numberOfAffectedRows;
   }
 
-  async getAllByParent(id: number): Promise<{
+  async getAllByParent(
+    id: number,
+    userId: number,
+    options?: QueryOptions,
+  ): Promise<{
     rows: Card[];
     count: number;
   }> {
-    return await this.cardRepository.findAndCountAll({
-      where: { cardGroupId: id },
-      include: [this.includeModel()],
+    const query: { limit?: number; offset?: number } = {};
+
+    if (options) {
+      query.limit = options.limit;
+      query.offset = (options.pageIndex - 1) * query.limit;
+    }
+
+    const [count, rows] = await Promise.all([
+      this.cardRepository.count({
+        where: { cardGroupId: id, userId: userId },
+        group: ['id'],
+        ...query,
+      }),
+      this.cardRepository.findAll({
+        where: { cardGroupId: id, userId: userId },
+        ...query,
+        include: [this.includeModel()],
+      }),
+    ]);
+
+    return Promise.resolve({
+      rows,
+      count: count.length,
     });
   }
 
   async deleteAllByParent(id: number, userId: number): Promise<number> {
-    const { rows: listCard } = await this.getAllByParent(id);
+    const { rows: listCard } = await this.getAllByParent(id, userId);
     const listIdCard = [];
     for (const card of listCard) {
       listIdCard.push(card.id);
