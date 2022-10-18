@@ -1,3 +1,4 @@
+import { VideoTranscript } from './../../modules/video-transcript/video-transcript.entity';
 import { CardProcess } from './../../modules/card/card.process.entity';
 import { CardStep } from './../../modules/card-step/card-step.entity';
 import { Sequelize } from 'sequelize-typescript';
@@ -34,6 +35,7 @@ export const databaseProviders = [
         Card,
         CardStep,
         CardProcess,
+        VideoTranscript,
       ]);
       await sequelize.sync();
       return sequelize;

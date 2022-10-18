@@ -12,6 +12,7 @@ import { ImageModule } from './modules/image/image.module';
 import { CardGroupModule } from './modules/card-group/card-group.module';
 import { CardStepModule } from './modules/card-step/card-step.module';
 import { FileTempModule } from './modules/file-temp/file-temp.module';
+import { VideoTranscriptModule } from './modules/video-transcript/video-transcript.module';
 @Module({
   imports: [
     DatabaseModule,
@@ -24,6 +25,7 @@ import { FileTempModule } from './modules/file-temp/file-temp.module';
     CardGroupModule,
     CardStepModule,
     FileTempModule,
+    VideoTranscriptModule,
   ],
   controllers: [AppController],
   providers: [AppService],
