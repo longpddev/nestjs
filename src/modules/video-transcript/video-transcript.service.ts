@@ -8,6 +8,7 @@ import { VideoTranscript } from './video-transcript.entity';
 import { ModelService } from 'src/core/interfaces/ModelService';
 import { Inject, Injectable } from '@nestjs/common';
 import { ImageService } from '../image/image.service';
+import { existsPromise, unlinkPromise } from 'src/core/helper/function';
 
 @Injectable()
 export class VideoTranscriptService
@@ -81,6 +82,11 @@ export class VideoTranscriptService
         userId,
       },
     });
+    const isFileExist = await existsPromise(data.path);
+
+    if (isFileExist) {
+      await unlinkPromise(data.path);
+    }
     if (data) await this.imageService.delete(data.thumbnailId);
     return result;
   }

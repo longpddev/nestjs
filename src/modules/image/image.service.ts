@@ -1,3 +1,4 @@
+import { existsPromise, unlinkPromise } from 'src/core/helper/function';
 import { ImageFile } from './image.file';
 import { ModelService } from './../../core/interfaces/ModelService';
 import { ImageDto } from './dto/image.dto';
@@ -39,8 +40,11 @@ export class ImageService implements ModelService<Image, ImageDto> {
 
   async delete(id: number) {
     const image = await this.getById(id);
-
-    if (this.imageFile.isExit(image.path)) this.imageFile.delete(image.path);
-    return await this.imageRepository.destroy({ where: { id } });
+    const result = await this.imageRepository.destroy({ where: { id } });
+    const isFileExist = await existsPromise(image.path);
+    if (isFileExist) {
+      await unlinkPromise(image.path);
+    }
+    return result;
   }
 }

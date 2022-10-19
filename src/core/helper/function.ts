@@ -1,3 +1,34 @@
+import { unlink, exists } from 'fs';
+
+export function unlinkPromise(path: string) {
+  return new Promise((res, rej) => {
+    unlink(path, (error) => {
+      if (error) {
+        rej(error);
+      } else {
+        res(true);
+      }
+    });
+  });
+}
+
+export function existsPromise(path: string) {
+  return new Promise((res, rej) => {
+    try {
+      exists(path, (isExist) => {
+        if (isExist) {
+          res(true);
+        } else {
+          res(false);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+      rej(e);
+    }
+  });
+}
+
 export function radomName() {
   return Date.now() + '-' + Math.round(Math.random() * 1e9);
 }
