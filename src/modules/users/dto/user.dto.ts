@@ -23,5 +23,5 @@ export class UserDto {
   // })
   // readonly gender: Gender;
 
-  readonly settings: typeof SettingsUser;
+  readonly settings: SettingsUser;
 }

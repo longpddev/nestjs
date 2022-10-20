@@ -1,4 +1,5 @@
 import { unlink, exists } from 'fs';
+import * as bcrypt from 'bcrypt';
 
 export function unlinkPromise(path: string) {
   return new Promise((res, rej) => {
@@ -12,7 +13,7 @@ export function unlinkPromise(path: string) {
   });
 }
 
-export function existsPromise(path: string) {
+export function existsPromise(path: string): Promise<boolean> {
   return new Promise((res, rej) => {
     try {
       exists(path, (isExist) => {
@@ -84,4 +85,9 @@ export const getTimeMidnight = () => {
   const timeOb = getTimeObject(new Date());
 
   return new Date(timeOb.y, timeOb.m, timeOb.d, 23, 59, 59);
+};
+
+export const hashPassword = async (password) => {
+  const hash = await bcrypt.hash(password, 10);
+  return hash;
 };

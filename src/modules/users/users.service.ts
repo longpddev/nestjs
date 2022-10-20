@@ -35,16 +35,14 @@ export class UsersService implements ModelService<User> {
   async getAll() {
     return await this.userRepository.findAndCountAll();
   }
-  async update(id: number, data) {
-    const { settings, name } = data;
-    const [count] = await this.userRepository.update(
-      { settings, name },
-      {
-        where: {
-          id,
-        },
+  async update(id: number, data: { [key in keyof UserDto]?: UserDto[key] }) {
+    const { email, ...includeData } = data;
+
+    const [count] = await this.userRepository.update(includeData, {
+      where: {
+        id,
       },
-    );
+    });
 
     return count;
   }

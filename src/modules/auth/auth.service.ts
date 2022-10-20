@@ -1,7 +1,8 @@
 import { UsersService } from './../users/users.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { hashPassword } from 'src/core/helper/function';
 
 @Injectable()
 export class AuthService {
@@ -35,9 +36,20 @@ export class AuthService {
   }
 
   public async create(user) {
-    const pass = await this.hashPassword(user.password);
+    const pass = await hashPassword(user.password);
     const newUser = await this.userService.create({ ...user, password: pass });
     const { password, ...result } = newUser['dataValues'];
+    const token = await this.generateToken(result);
+    return { user: result, token };
+  }
+
+  public async updatePassword(id, password) {
+    const pass = await hashPassword(password);
+    const isSuccess = await this.userService.update(id, { password: pass });
+    if (!isSuccess) throw new NotFoundException('Update fail');
+
+    const user = await this.userService.findOneById(id);
+    const { password: _, ...result } = user['dataValues'];
     const token = await this.generateToken(result);
     return { user: result, token };
   }
@@ -45,11 +57,6 @@ export class AuthService {
   private async generateToken(user) {
     const token = await this.jwtService.signAsync(user);
     return token;
-  }
-
-  private async hashPassword(password) {
-    const hash = await bcrypt.hash(password, 10);
-    return hash;
   }
 
   public async getById(id: number) {

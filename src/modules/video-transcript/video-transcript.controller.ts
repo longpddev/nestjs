@@ -20,6 +20,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { unlink } from 'fs';
+import { EmptyError } from 'rxjs';
+import { unlinkPromise, existsPromise } from 'src/core/helper/function';
 
 @Controller('video')
 export class VideoTranscriptController {
@@ -59,7 +61,6 @@ export class VideoTranscriptController {
     @Request() req,
   ) {
     const { filename, path } = file;
-    console.log(body);
     body.path = path;
     body.name = filename;
     // body.metadata = {
@@ -77,27 +78,34 @@ export class VideoTranscriptController {
   async changeVideo(
     @Param('id') id: number,
     @UploadedFile() file: Express.Multer.File,
+    @Body()
+    body: { width?: number; height?: number },
     @Request() req,
   ) {
     const { filename, path } = file;
     const userId = req.user.id;
+    let dimension: { width: number; height: number } | Record<string, never> =
+      {};
     const video = await this.videoTranscriptService.getById(id, userId);
 
     if (!video) throw new NotFoundException("This video doesn't exits ");
-
+    if (body?.width && body?.height) {
+      dimension = {
+        width: body.width,
+        height: body.height,
+      };
+    }
     const oldPath = video.path;
     const [result] = await Promise.all([
       this.videoTranscriptService.update(
         id,
-        { path: path, name: filename },
+        { path: path, name: filename, ...dimension },
         userId,
       ),
-      new Promise((res, rej) => {
-        unlink(oldPath, (err) => {
-          if (!err) res(true);
-          rej(err);
-        });
-      }),
+      (async () => {
+        const exists = await existsPromise(oldPath);
+        if (exists) await unlinkPromise(oldPath);
+      })(),
     ]);
 
     return result;

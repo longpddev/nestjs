@@ -47,7 +47,7 @@ export class VideoTranscriptService
     ]);
     return {
       count,
-      rows,
+      rows: rows ? rows : [],
     };
   }
   async create(data: VideoTranscriptDto, userId: number) {

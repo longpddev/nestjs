@@ -8,8 +8,12 @@ import {
   Post,
   UseGuards,
   Get,
+  Put,
+  NotFoundException,
+  NotAcceptableException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { hashPassword } from 'src/core/helper/function';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +34,20 @@ export class AuthController {
   @Get('user-info')
   async tokenLogin(@Request() req) {
     return await this.authService.getById(req.user.id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('change-password')
+  async changePassword(
+    @Body('oldPassword') oldPassword: string,
+    @Body('newPassword') newPassword: string,
+    @Request() req,
+  ) {
+    const { email, id } = req.user;
+    const isMatch = await this.authService.validateUser(email, oldPassword);
+    if (!isMatch) throw new NotAcceptableException('password do not match');
+
+    return await this.authService.updatePassword(id, newPassword);
+    // return await this.usersService.update(req.user.id, includeData);
   }
 }
