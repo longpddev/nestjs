@@ -45,12 +45,10 @@ export class UsersController {
 
     if (!user) throw new NotFoundException('User do not found');
     const oldPasswordHash = await hashPassword(oldPassword);
-    console.log(oldPasswordHash, user.password);
     if (user.password !== oldPasswordHash)
       throw new NotAcceptableException('password do not match');
 
     const newPasswordHash = await hashPassword(newPassword);
     return await this.usersService.update(id, { password: newPasswordHash });
-    // return await this.usersService.update(req.user.id, includeData);
   }
 }
