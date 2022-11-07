@@ -1,4 +1,3 @@
-import { defaultVideoMetadataDto } from './dto/video-metadata.dto';
 import { QueryOptions } from 'src/core/interfaces/common';
 import { VideoTranscriptDto } from './dto/video-transcript.dto';
 import { VideoTranscriptService } from './video-transcript.service';
@@ -8,6 +7,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotAcceptableException,
   NotFoundException,
   Param,
   Post,
@@ -19,12 +19,29 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { unlink } from 'fs';
-import { EmptyError } from 'rxjs';
-import { unlinkPromise, existsPromise } from 'src/core/helper/function';
+import {
+  unlinkPromise,
+  existsPromise,
+  uuid,
+  changePath,
+  getAllFileInFolder,
+  createFile,
+} from 'src/core/helper/function';
+import { createFolder, mergeFiles } from '../../core/helper/function';
+import { join } from 'path';
+import {
+  PUBLIC_FOLDER,
+  ROOT_PATH,
+  TMP_MULTIPLE_UPLOAD_FOLDER,
+} from 'src/core/constants';
 
 @Controller('video')
 export class VideoTranscriptController {
+  private readonly MULTIPLE_UPLOAD_FOLDER: string = join(
+    ROOT_PATH.path,
+    PUBLIC_FOLDER,
+    TMP_MULTIPLE_UPLOAD_FOLDER,
+  );
   constructor(
     private readonly videoTranscriptService: VideoTranscriptService,
   ) {}
@@ -70,6 +87,71 @@ export class VideoTranscriptController {
     const result = await this.videoTranscriptService.create(body, req.user.id);
 
     return result;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('upload-multiple/init')
+  async UploadMultipleInit() {
+    const timeExpire = new Date().getTime() + 3600000;
+    const token = uuid() + '_' + timeExpire;
+    createFolder(join(this.MULTIPLE_UPLOAD_FOLDER, token));
+    return {
+      tokenUpload: token,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload-multiple/file')
+  @UseInterceptors(FileInterceptor('file'))
+  async UploadMultipleFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body()
+    body: {
+      index: number;
+      size: number;
+      totalFile: number;
+      tokenUpload: string;
+    },
+  ) {
+    const { path } = file;
+    const { index, size, totalFile, tokenUpload } = body;
+    const newPath = join(
+      this.MULTIPLE_UPLOAD_FOLDER,
+      tokenUpload,
+      `video_${index}`,
+    );
+    const isExist = await existsPromise(newPath);
+    if (isExist) {
+      await unlinkPromise(path);
+      throw new NotAcceptableException('file exist');
+    }
+    await changePath(
+      path,
+      join(this.MULTIPLE_UPLOAD_FOLDER, tokenUpload, `video_${index}`),
+    );
+    return body;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload-multiple/merge')
+  async UploadMultipleMerge(
+    @Body()
+    body: {
+      tokenUpload: string;
+    },
+  ) {
+    const { tokenUpload } = body;
+    const pathToToken = join(this.MULTIPLE_UPLOAD_FOLDER, tokenUpload);
+    console.log(body);
+    const fileMerge = join(pathToToken, tokenUpload);
+
+    const paths = (await getAllFileInFolder(pathToToken)).map((path) =>
+      join(pathToToken, path),
+    );
+    createFile(fileMerge);
+    await mergeFiles(paths, fileMerge);
+    await Promise.all(paths.map(unlinkPromise));
+    return { paths };
   }
 
   @UseGuards(AuthGuard('jwt'))

@@ -12,6 +12,9 @@ import { VideoTranscript } from './video-transcript.entity';
     ImageModule,
     MulterModule.register({
       storage: createStore('public/upload/video'),
+      limits: {
+        fileSize: 1012 * 1012 * 200,
+      },
     }),
   ],
   providers: [

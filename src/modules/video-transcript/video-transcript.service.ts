@@ -1,8 +1,5 @@
 import { QueryOptions } from 'src/core/interfaces/common';
-import {
-  VIDEO_TRANSCRIPT_REPOSITORY,
-  IMAGE_REPOSITORY,
-} from './../../core/constants/index';
+import { VIDEO_TRANSCRIPT_REPOSITORY } from './../../core/constants/index';
 import { VideoTranscriptDto } from './dto/video-transcript.dto';
 import { VideoTranscript } from './video-transcript.entity';
 import { ModelService } from 'src/core/interfaces/ModelService';
