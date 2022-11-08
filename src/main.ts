@@ -11,7 +11,8 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
-  app.useStaticAssets(join(ROOT_PATH.path, '..', PUBLIC_FOLDER), {
+  console.log(join(ROOT_PATH.path, PUBLIC_FOLDER));
+  app.useStaticAssets(join(ROOT_PATH.path, PUBLIC_FOLDER), {
     prefix: '/public/',
   });
   app.setGlobalPrefix('api/v1');

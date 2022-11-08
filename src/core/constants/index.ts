@@ -12,6 +12,7 @@ export const CARD_PROCESS_REPOSITORY = 'CARD_PROCESS_REPOSITORY';
 export const VIDEO_TRANSCRIPT_REPOSITORY = 'VIDEO_TRANSCRIPT_REPOSITORY';
 export const PUBLIC_FOLDER = 'public';
 export const TMP_MULTIPLE_UPLOAD_FOLDER = 'tmp_multiple_upload';
+export const PUBLIC_VIDEO_FOLDER = `${PUBLIC_FOLDER}/upload/video`;
 export const CARD_STEP_TYPE = {
   question: 'question',
   answer: 'answer',

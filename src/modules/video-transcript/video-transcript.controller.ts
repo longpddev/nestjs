@@ -31,6 +31,7 @@ import { createFolder, mergeFiles } from '../../core/helper/function';
 import { join } from 'path';
 import {
   PUBLIC_FOLDER,
+  PUBLIC_VIDEO_FOLDER,
   ROOT_PATH,
   TMP_MULTIPLE_UPLOAD_FOLDER,
 } from 'src/core/constants';
@@ -71,20 +72,37 @@ export class VideoTranscriptController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
   async upload(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: VideoTranscriptDto,
+    @Body('data') data: VideoTranscriptDto,
+    @Body('tokenUpload') tokenUpload: string,
+    @Body('extension') extension: string,
     @Request() req,
   ) {
-    const { filename, path } = file;
-    body.path = path;
-    body.name = filename;
+    if (!['mp4'].includes(extension)) {
+      throw new NotAcceptableException('extension do not support');
+    }
+
+    const filename = uuid(8) + '.' + extension;
+    const tmpPathVideo = join(
+      this.MULTIPLE_UPLOAD_FOLDER,
+      tokenUpload,
+      tokenUpload,
+    );
+
+    const relativePath = join(PUBLIC_VIDEO_FOLDER, filename);
+    const newVideoPath = join(ROOT_PATH.path, relativePath);
+    // const { filename, path } = file;
+    // body.path = path;
+    // body.name = filename;
     // body.metadata = {
     //   ...defaultVideoMetadataDto,
     //   ...body.metadata,
     // };
-    const result = await this.videoTranscriptService.create(body, req.user.id);
+    await changePath(tmpPathVideo, newVideoPath);
+    console.log(relativePath);
+    data.name = filename;
+    data.path = relativePath;
+    const result = await this.videoTranscriptService.create(data, req.user.id);
 
     return result;
   }
@@ -142,15 +160,30 @@ export class VideoTranscriptController {
   ) {
     const { tokenUpload } = body;
     const pathToToken = join(this.MULTIPLE_UPLOAD_FOLDER, tokenUpload);
-    console.log(body);
     const fileMerge = join(pathToToken, tokenUpload);
 
-    const paths = (await getAllFileInFolder(pathToToken)).map((path) =>
-      join(pathToToken, path),
-    );
+    const paths = (await getAllFileInFolder(pathToToken))
+      .sort((a, b) => {
+        if (a === b) return 0;
+        if (parseInt(a.split('_')[1]) > parseInt(b.split('_')[1])) {
+          return 1;
+        } else {
+          return -1;
+        }
+      })
+      .map((path) => join(pathToToken, path));
+
     createFile(fileMerge);
     await mergeFiles(paths, fileMerge);
-    await Promise.all(paths.map(unlinkPromise));
+    console.log(paths);
+    await Promise.all(
+      paths.map(async (path) => {
+        const isExist = await existsPromise(path);
+        if (isExist) {
+          await unlinkPromise(path);
+        }
+      }),
+    );
     return { paths };
   }
 
