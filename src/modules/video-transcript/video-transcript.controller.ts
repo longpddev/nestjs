@@ -92,7 +92,6 @@ export class VideoTranscriptController {
 
     await changePath(tmpPathVideo, newVideoPath);
     await rm(tmpPathFolderVideo, { force: true, recursive: true });
-    console.log(relativePath);
     data.name = filename;
     data.path = relativePath;
     const result = await this.videoTranscriptService.create(data, req.user.id);
@@ -168,7 +167,7 @@ export class VideoTranscriptController {
 
     createFile(fileMerge);
     await mergeFiles(paths, fileMerge);
-    console.log(paths);
+
     await Promise.all(
       paths.map(async (path) => {
         const isExist = await existsPromise(path);
