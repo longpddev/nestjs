@@ -35,6 +35,7 @@ import {
   ROOT_PATH,
   TMP_MULTIPLE_UPLOAD_FOLDER,
 } from 'src/core/constants';
+import { rm } from 'fs/promises';
 
 @Controller('video')
 export class VideoTranscriptController {
@@ -83,22 +84,14 @@ export class VideoTranscriptController {
     }
 
     const filename = uuid(8) + '.' + extension;
-    const tmpPathVideo = join(
-      this.MULTIPLE_UPLOAD_FOLDER,
-      tokenUpload,
-      tokenUpload,
-    );
+    const tmpPathFolderVideo = join(this.MULTIPLE_UPLOAD_FOLDER, tokenUpload);
+    const tmpPathVideo = join(tmpPathFolderVideo, tokenUpload);
 
     const relativePath = join(PUBLIC_VIDEO_FOLDER, filename);
     const newVideoPath = join(ROOT_PATH.path, relativePath);
-    // const { filename, path } = file;
-    // body.path = path;
-    // body.name = filename;
-    // body.metadata = {
-    //   ...defaultVideoMetadataDto,
-    //   ...body.metadata,
-    // };
+
     await changePath(tmpPathVideo, newVideoPath);
+    await rm(tmpPathFolderVideo, { force: true, recursive: true });
     console.log(relativePath);
     data.name = filename;
     data.path = relativePath;
