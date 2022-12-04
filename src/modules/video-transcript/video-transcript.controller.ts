@@ -139,7 +139,7 @@ export class VideoTranscriptController {
       path,
       join(this.MULTIPLE_UPLOAD_FOLDER, tokenUpload, `video_${index}`),
     );
-    return body;
+    return true;
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -176,7 +176,7 @@ export class VideoTranscriptController {
         }
       }),
     );
-    return { paths };
+    return true;
   }
 
   @UseGuards(AuthGuard('jwt'))
