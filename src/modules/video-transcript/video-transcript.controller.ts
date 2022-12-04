@@ -1,5 +1,6 @@
 import { QueryOptions } from 'src/core/interfaces/common';
 import { VideoTranscriptDto } from './dto/video-transcript.dto';
+import { defaultVideoMetadataDto } from './dto/video-metadata.dto';
 import { VideoTranscriptService } from './video-transcript.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -94,6 +95,7 @@ export class VideoTranscriptController {
     await rm(tmpPathFolderVideo, { force: true, recursive: true });
     data.name = filename;
     data.path = relativePath;
+    data.metadata = defaultVideoMetadataDto;
     const result = await this.videoTranscriptService.create(data, req.user.id);
 
     return result;
